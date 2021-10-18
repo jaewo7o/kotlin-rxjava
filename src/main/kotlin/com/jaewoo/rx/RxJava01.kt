@@ -7,13 +7,18 @@ class RxJava01 {
     fun basicConcept01() {
         // 1. 배압처리 가능
         // 데이터의 발행 속도가 구독자의 처리속도보다 크게 빠를 때 사용 (BackPressure Issue)
-        println("==========> Flowable")
+        println("==========> Flowable CASE 1")
         val integerFlowable = Flowable.just(1, 2, 3, 4, 5, 6)
         integerFlowable.subscribe(::println)
+        println()
 
+        println("==========> Flowable CASE 2")
         integerFlowable.subscribe(
-            { println("2 : $it") }
+            { println("2 : $it") },
+            { it.printStackTrace() },
+            { println("Complete") }
         )
+        println()
 
         // 2. 배압처리 안됨
         println("==========> Observable")
