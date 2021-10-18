@@ -1,7 +1,9 @@
 package com.jaewoo.rx
 
+import com.jaewoo.rx.util.ThreadUtil
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import java.util.concurrent.TimeUnit
 
 class RxJava01 {
     fun basicConcept01() {
@@ -25,9 +27,36 @@ class RxJava01 {
         val integerObservable = Observable.just(1, 2, 3, 4, 5, 6)
         integerObservable.subscribe(::println)
     }
+
+    fun coldHot02(isCold: Boolean) {
+        if (isCold) {
+            println("### COLD FLOWABLE ###")
+            val flowable = Flowable.interval(1, TimeUnit.SECONDS)
+            flowable.subscribe({ println("1 : $it") })
+            ThreadUtil.sleep(3)
+
+            flowable.subscribe({ println("2 : $it") })
+            ThreadUtil.sleep(3)
+        } else {
+            println("### HOT FLOWABLE ###")
+            val connectFlowable = Flowable.interval(1, TimeUnit.SECONDS)
+                .doOnNext({ ThreadUtil.sleep(1) })
+                .publish()
+            connectFlowable.connect()
+
+            connectFlowable.subscribe({ println("1 : $it") })
+            ThreadUtil.sleep(3)
+
+            connectFlowable.subscribe({ println("2 : $it") })
+            ThreadUtil.sleep(3)
+        }
+    }
 }
 
 fun main() {
     val rxJava01 = RxJava01()
-    rxJava01.basicConcept01()
+    //rxJava01.basicConcept01()
+
+    //rxJava01.coldHot02(true)
+    rxJava01.coldHot02(false)
 }
