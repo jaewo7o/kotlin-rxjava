@@ -3,6 +3,8 @@ package com.jaewoo.rx
 import com.jaewoo.rx.util.ThreadUtil
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import java.util.concurrent.TimeUnit
 
 class RxJava01 {
@@ -51,6 +53,41 @@ class RxJava01 {
             ThreadUtil.sleep(3)
         }
     }
+
+    fun disposable03() {
+        val flowable = Flowable.interval(1, TimeUnit.SECONDS)
+        val disposable = flowable.subscribe { println("subscription : $it") }
+
+        ThreadUtil.sleep(3)
+        disposable.dispose()
+        ThreadUtil.sleep(1)
+    }
+
+    fun newSubscriber04() {
+        val subscriber = object : Subscriber<Int> {
+            override fun onSubscribe(s: Subscription) {
+                println("onSubscribe : $s")
+                s.request(Long.MAX_VALUE)
+            }
+
+            override fun onNext(t: Int?) {
+                println("onNext : $t")
+            }
+
+            override fun onError(t: Throwable?) {
+                println("onError : $t")
+            }
+
+            override fun onComplete() {
+                println("onComplete")
+            }
+        }
+        Flowable.just(1, 2, 3, 4, 5)
+            .doOnNext {
+                println(Thread.currentThread().name)
+            }
+            .subscribe(subscriber)
+    }
 }
 
 fun main() {
@@ -58,5 +95,7 @@ fun main() {
     //rxJava01.basicConcept01()
 
     //rxJava01.coldHot02(true)
-    rxJava01.coldHot02(false)
+    //rxJava01.coldHot02(false)
+    //rxJava01.disposable03()
+    rxJava01.newSubscriber04()
 }
