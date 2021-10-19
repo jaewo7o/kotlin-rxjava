@@ -2,9 +2,13 @@ package com.jaewoo.rx
 
 import com.jaewoo.rx.util.ThreadUtil
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
 class RxJava01 {
@@ -88,6 +92,31 @@ class RxJava01 {
             }
             .subscribe(subscriber)
     }
+
+    fun singleMaybe() {
+        val single = Single.just(1)
+        single.subscribe { data -> println("single1 : $data") }
+
+        single.subscribe(
+            { println("single2 : $it") },
+            { println("onError") }
+        )
+
+        val maybe1 = Maybe.empty<Int>()
+        val maybe2 = Maybe.just(1)
+
+        maybe1.subscribe { data -> println("maybe1 : $data") }
+        maybe2.subscribe { data -> println("maybe2 : $data") }
+
+        val mono = Mono.just(1)
+        val flux = Flux.just(1, 2, 3)
+        mono.subscribe { println("mono : $it") }
+        flux.doOnNext {
+            println("-> : $it")
+        }.subscribe {
+            println(">>>>> : $it")
+        }
+    }
 }
 
 fun main() {
@@ -97,5 +126,6 @@ fun main() {
     //rxJava01.coldHot02(true)
     //rxJava01.coldHot02(false)
     //rxJava01.disposable03()
-    rxJava01.newSubscriber04()
+    //rxJava01.newSubscriber04()
+    rxJava01.singleMaybe()
 }
