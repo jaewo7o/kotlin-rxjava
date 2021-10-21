@@ -1,10 +1,12 @@
 package com.jaewoo.rx
 
 import com.jaewoo.rx.util.ThreadUtil
+import io.reactivex.BackpressureOverflowStrategy
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import reactor.core.publisher.Flux
@@ -88,7 +90,7 @@ class RxJava01 {
         }
         Flowable.just(1, 2, 3, 4, 5)
             .doOnNext {
-                println(Thread.currentThread().name)
+                println(ThreadUtil.getThreadName())
             }
             .subscribe(subscriber)
     }
@@ -117,6 +119,24 @@ class RxJava01 {
             println(">>>>> : $it")
         }
     }
+
+    fun schedule06() {
+        val integerFlowable = Flowable.interval(1, TimeUnit.SECONDS)
+            //.onBackpressureDrop()
+            .onBackpressureBuffer(
+                2,
+                { println("Data Over") },
+                BackpressureOverflowStrategy.DROP_OLDEST
+            )
+
+        integerFlowable.observeOn(Schedulers.computation(), false, 1)
+            .subscribe {
+                ThreadUtil.sleep(3, false)
+                println(it)
+            }
+
+        ThreadUtil.sleep(20)
+    }
 }
 
 fun main() {
@@ -127,5 +147,6 @@ fun main() {
     //rxJava01.coldHot02(false)
     //rxJava01.disposable03()
     //rxJava01.newSubscriber04()
-    rxJava01.singleMaybe()
+    //rxJava01.singleMaybe()
+    rxJava01.schedule06()
 }

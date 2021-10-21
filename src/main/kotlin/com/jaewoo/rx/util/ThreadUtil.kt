@@ -9,5 +9,9 @@ class ThreadUtil {
 
             Thread.sleep(sleepSecond * 1000L)
         }
+
+        fun getThreadName(): String {
+            return Thread.currentThread().name
+        }
     }
 }
